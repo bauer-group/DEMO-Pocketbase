@@ -1,0 +1,13 @@
+# Konsistente Zeilenenden über alle Plattformen (Windows-Devs inklusive).
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.svg text
+
+# Lockfiles im Diff einklappen
+package-lock.json linguist-generated=true

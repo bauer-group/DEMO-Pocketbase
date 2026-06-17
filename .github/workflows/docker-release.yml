@@ -1,0 +1,173 @@
+# =============================================================================
+# Docker Release Pipeline
+# =============================================================================
+# Validiert, baut und veröffentlicht die Docker-Images (PocketBase + Frontend).
+#
+# Nutzt die Reusable-Workflows aus bauer-group/automation-templates.
+# =============================================================================
+
+name: Docker Release
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '.github/**'
+      - '*.md'
+      - 'docs/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'pocketbase/**'
+      - 'docker-compose*.yml'
+  workflow_dispatch:
+    inputs:
+      force-release:
+        description: 'Force a new release even without conventional commits'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+  security-events: write
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Compose-Dateien validieren
+  # ---------------------------------------------------------------------------
+  validate-compose:
+    name: Validate Compose Files
+    uses: bauer-group/automation-templates/.github/workflows/modules-validate-compose.yml@main
+    with:
+      runs-on: '["self-hosted", "linux"]'
+      compose-files: |
+        [
+          "docker-compose.development.yml",
+          "docker-compose.coolify.yml",
+          "docker-compose.traefik.yml"
+        ]
+      env-template: |
+        {
+          "STACK_NAME": "pocketbase-collab",
+          "SERVICE_HOSTNAME": "collab.example.com",
+          "TIME_ZONE": "Etc/UTC",
+          "PROXY_NETWORK": "EDGEPROXY",
+          "TLS_CERTRESOLVER": "letsencrypt",
+          "APP_PORT": "8080",
+          "PB_PORT": "8090",
+          "PB_VERSION": "0.39.4",
+          "DEMO_USER_EMAIL": "demo@example.com",
+          "DEMO_USER_PASSWORD": "demo1234"
+        }
+    secrets: inherit
+
+  # ---------------------------------------------------------------------------
+  # Semantic Release
+  # ---------------------------------------------------------------------------
+  release:
+    name: Create Release
+    needs: [validate-compose]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: bauer-group/automation-templates/.github/workflows/modules-semantic-release.yml@main
+    with:
+      runs-on: '["self-hosted", "linux"]'
+      target-branch: 'main'
+      dry-run: false
+      force-release: ${{ inputs.force-release || false }}
+    secrets: inherit
+
+  # ---------------------------------------------------------------------------
+  # Build & Push – PocketBase-Image (Release)
+  # ---------------------------------------------------------------------------
+  docker-pocketbase-release:
+    name: Build PocketBase Image (Release)
+    needs: [release]
+    if: needs.release.outputs.release-created == 'true'
+    uses: bauer-group/automation-templates/.github/workflows/docker-build.yml@main
+    with:
+      runs-on: '["self-hosted", "linux"]'
+      deploy-environment: 'production'
+      publish-to: 'ghcr'
+      ghcr-image-name: ${{ github.repository }}/pocketbase
+      release-version: ${{ needs.release.outputs.version }}
+      update-dockerfile-version: false
+      auto-tags: true
+      latest-tag: true
+      dockerfile-path: './pocketbase/Dockerfile'
+      docker-context: './pocketbase'
+      platforms: 'linux/amd64'
+      push: true
+      security-scan: false
+      generate-sbom: true
+      cache-enabled: false
+    secrets: inherit
+
+  # ---------------------------------------------------------------------------
+  # Build & Push – Frontend-Image (Release)
+  # ---------------------------------------------------------------------------
+  docker-frontend-release:
+    name: Build Frontend Image (Release)
+    needs: [release]
+    if: needs.release.outputs.release-created == 'true'
+    uses: bauer-group/automation-templates/.github/workflows/docker-build.yml@main
+    with:
+      runs-on: '["self-hosted", "linux"]'
+      deploy-environment: 'production'
+      publish-to: 'ghcr'
+      ghcr-image-name: ${{ github.repository }}/frontend
+      release-version: ${{ needs.release.outputs.version }}
+      update-dockerfile-version: false
+      auto-tags: true
+      latest-tag: true
+      dockerfile-path: './frontend/Dockerfile'
+      docker-context: './frontend'
+      platforms: 'linux/amd64'
+      push: true
+      security-scan: false
+      generate-sbom: true
+      cache-enabled: false
+    secrets: inherit
+
+  # ---------------------------------------------------------------------------
+  # Build (ohne Push) – PR-Validierung beider Images
+  # ---------------------------------------------------------------------------
+  docker-pocketbase-pr:
+    name: Build PocketBase Image (PR)
+    needs: [validate-compose]
+    if: github.event_name == 'pull_request'
+    uses: bauer-group/automation-templates/.github/workflows/docker-build.yml@main
+    with:
+      runs-on: '["self-hosted", "linux"]'
+      publish-to: 'ghcr'
+      ghcr-image-name: ${{ github.repository }}/pocketbase
+      auto-tags: true
+      dockerfile-path: './pocketbase/Dockerfile'
+      docker-context: './pocketbase'
+      platforms: 'linux/amd64'
+      push: false
+      security-scan: false
+      cache-enabled: false
+    secrets: inherit
+
+  docker-frontend-pr:
+    name: Build Frontend Image (PR)
+    needs: [validate-compose]
+    if: github.event_name == 'pull_request'
+    uses: bauer-group/automation-templates/.github/workflows/docker-build.yml@main
+    with:
+      runs-on: '["self-hosted", "linux"]'
+      publish-to: 'ghcr'
+      ghcr-image-name: ${{ github.repository }}/frontend
+      auto-tags: true
+      dockerfile-path: './frontend/Dockerfile'
+      docker-context: './frontend'
+      platforms: 'linux/amd64'
+      push: false
+      security-scan: false
+      cache-enabled: false
+    secrets: inherit

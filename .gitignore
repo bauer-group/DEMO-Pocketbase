@@ -1,0 +1,27 @@
+# --- Env / Secrets -----------------------------------------------------------
+.env
+.env.local
+*.local
+
+# --- Lokale Tool-Settings ----------------------------------------------------
+.claude/
+
+# --- OS ----------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+
+# --- Node / Frontend ---------------------------------------------------------
+node_modules/
+frontend/dist/
+frontend/dev-dist/
+frontend/.tsbuild/
+*.tsbuildinfo
+
+# --- PocketBase Runtime-Daten ------------------------------------------------
+# pb_data enthält DB, Uploads, Backups – nie committen.
+pb_data/
+pocketbase/pb_data/
+
+# --- Logs --------------------------------------------------------------------
+*.log
+npm-debug.log*

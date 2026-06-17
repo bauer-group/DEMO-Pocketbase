@@ -1,0 +1,67 @@
+# =============================================================================
+# Dependabot Configuration
+# =============================================================================
+# Automatische Dependency-Updates für npm-, Docker- und GitHub-Actions.
+# =============================================================================
+
+version: 2
+
+updates:
+  # --- Frontend (npm) --------------------------------------------------------
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Etc/UTC"
+    commit-message:
+      prefix: "chore(npm)"
+    labels:
+      - "dependencies"
+      - "frontend"
+    groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react*"
+      radix:
+        patterns:
+          - "@radix-ui/*"
+      dev-dependencies:
+        dependency-type: "development"
+    ignore:
+      # Major-Updates für Stabilität ignorieren
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # --- Docker-Images ---------------------------------------------------------
+  - package-ecosystem: "docker"
+    directories:
+      - "/pocketbase"
+      - "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Etc/UTC"
+    commit-message:
+      prefix: "chore(docker)"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # --- GitHub Actions --------------------------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Etc/UTC"
+    commit-message:
+      prefix: "chore(actions)"
+    labels:
+      - "dependencies"
+      - "github-actions"

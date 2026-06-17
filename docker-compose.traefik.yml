@@ -1,0 +1,114 @@
+# =============================================================================
+# Docker Compose - Production hinter EXTERNEM Traefik
+# =============================================================================
+# Usage:
+#   docker compose -f docker-compose.traefik.yml up -d
+#
+# Voraussetzungen (Traefik läuft separat, BAUER-GROUP-Standard):
+#   - Laufender Traefik im externen Netzwerk ${PROXY_NETWORK}
+#   - Entrypoints  http (:80) / https (:443)
+#   - ACME/Let's-Encrypt certresolver ${TLS_CERTRESOLVER}
+#   - File-Provider-Middleware  https-redirect@file
+#   - DNS-A-Record:  ${SERVICE_HOSTNAME}  -> Server-IP
+#
+# Routing-Modell (einheitlich): Traefik terminiert TLS und routet EINEN Host
+# auf das Frontend-Nginx. Nginx proxied /api und /_/ intern an PocketBase.
+# PocketBase ist NICHT am Proxy exponiert -> gleiche Origin, kein CORS.
+# =============================================================================
+
+name: ${STACK_NAME:-pocketbase-collab}
+
+services:
+  # ---------------------------------------------------------------------------
+  # PocketBase – nur intern erreichbar (über das Frontend-Nginx)
+  # ---------------------------------------------------------------------------
+  pocketbase:
+    build:
+      context: ./pocketbase
+      args:
+        PB_VERSION: ${PB_VERSION:-0.39.4}
+    image: ${IMAGE_PB:-ghcr.io/bauer-group/pocketbase-collab/pocketbase}:${PB_VERSION:-0.39.4}
+    container_name: ${STACK_NAME:-pocketbase-collab}_pocketbase
+    restart: unless-stopped
+    environment:
+      TZ: ${TIME_ZONE:-Etc/UTC}
+      DEMO_USER_EMAIL: ${DEMO_USER_EMAIL:-demo@example.com}
+      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-demo1234}
+    expose:
+      - "8090"
+    volumes:
+      - pb_data:/pb/pb_data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8090/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - internal
+
+  # ---------------------------------------------------------------------------
+  # Frontend – einziger am Traefik exponierter Service
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_PB_URL: ""        # leer -> location.origin -> Nginx-Proxy
+    image: ${IMAGE_WEB:-ghcr.io/bauer-group/pocketbase-collab/frontend}:${APP_VERSION:-latest}
+    container_name: ${STACK_NAME:-pocketbase-collab}_frontend
+    restart: unless-stopped
+    depends_on:
+      pocketbase:
+        condition: service_healthy
+    expose:
+      - "80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${PROXY_NETWORK:-EDGEPROXY}"
+
+      # HTTP -> HTTPS
+      - "traefik.http.routers.${STACK_NAME:-pbcollab}-http.rule=Host(`${SERVICE_HOSTNAME:-collab.example.com}`)"
+      - "traefik.http.routers.${STACK_NAME:-pbcollab}-http.entrypoints=http"
+      - "traefik.http.routers.${STACK_NAME:-pbcollab}-http.middlewares=https-redirect@file"
+
+      # HTTPS
+      - "traefik.http.routers.${STACK_NAME:-pbcollab}-https.rule=Host(`${SERVICE_HOSTNAME:-collab.example.com}`)"
+      - "traefik.http.routers.${STACK_NAME:-pbcollab}-https.entrypoints=https"
+      - "traefik.http.routers.${STACK_NAME:-pbcollab}-https.tls=true"
+      - "traefik.http.routers.${STACK_NAME:-pbcollab}-https.tls.certresolver=${TLS_CERTRESOLVER:-letsencrypt}"
+      - "traefik.http.routers.${STACK_NAME:-pbcollab}-https.middlewares=${STACK_NAME:-pbcollab}-sec"
+
+      # Security-Header
+      - "traefik.http.middlewares.${STACK_NAME:-pbcollab}-sec.headers.frameDeny=true"
+      - "traefik.http.middlewares.${STACK_NAME:-pbcollab}-sec.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.${STACK_NAME:-pbcollab}-sec.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.${STACK_NAME:-pbcollab}-sec.headers.referrerPolicy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.${STACK_NAME:-pbcollab}-sec.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.${STACK_NAME:-pbcollab}-sec.headers.stsIncludeSubdomains=true"
+
+      # Service
+      - "traefik.http.services.${STACK_NAME:-pbcollab}.loadbalancer.server.port=80"
+    networks:
+      - internal
+      - proxy
+
+# -----------------------------------------------------------------------------
+# Netzwerke – proxy ist das EXTERNE Traefik-Netz (wird hier NICHT erzeugt).
+# -----------------------------------------------------------------------------
+networks:
+  internal:
+    driver: bridge
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-EDGEPROXY}
+
+volumes:
+  pb_data:
+    name: ${STACK_NAME:-pocketbase-collab}_pb_data

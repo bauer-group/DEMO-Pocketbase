@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#6366f1" />
+    <meta
+      name="description"
+      content="Kollaborativer Workspace – Demo für PocketBase, Vite, React, Realtime & PWA"
+    />
+    <title>PocketBase Collab Workspace</title>
+    <script>
+      // Theme früh setzen, um FOUC (Flash of Unstyled Theme) zu vermeiden.
+      (function () {
+        try {
+          var t = localStorage.getItem("theme");
+          var dark =
+            t === "dark" ||
+            (!t && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

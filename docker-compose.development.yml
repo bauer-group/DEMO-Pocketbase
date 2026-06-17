@@ -1,0 +1,76 @@
+# =============================================================================
+# Docker Compose - Development Environment
+# =============================================================================
+# Usage:
+#   docker compose -f docker-compose.development.yml up -d
+#   docker compose -f docker-compose.development.yml logs -f pocketbase
+#   docker compose -f docker-compose.development.yml down
+#
+# Routing-Modell (einheitlich über ALLE Hosting-Typen):
+#   Browser ─▶ Frontend-Nginx ─▶ /api, /_/ ─▶ PocketBase (intern)
+#   Nginx ist der einzige Eingang, gleiche Origin -> kein CORS.
+#
+# Zwei Workflows:
+#   (A) Alles containerisiert:   http://localhost:${APP_PORT:-8080}
+#   (B) Frontend lokal (vite dev): PocketBase ist zusätzlich direkt unter
+#       http://localhost:${PB_PORT:-8090} erreichbar (Dev-Proxy in vite.config).
+# =============================================================================
+
+name: ${STACK_NAME:-pocketbase-collab}
+
+services:
+  pocketbase:
+    build:
+      context: ./pocketbase
+      args:
+        PB_VERSION: ${PB_VERSION:-0.39.4}
+    image: ${IMAGE_PB:-pocketbase-collab/pocketbase}:${PB_VERSION:-0.39.4}
+    container_name: ${STACK_NAME:-pocketbase-collab}_pocketbase
+    restart: unless-stopped
+    environment:
+      TZ: ${TIME_ZONE:-Etc/UTC}
+      DEMO_USER_EMAIL: ${DEMO_USER_EMAIL:-demo@example.com}
+      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-demo1234}
+    # Im Dev zusätzlich direkt veröffentlicht (für `vite dev` daneben).
+    ports:
+      - "${PB_PORT:-8090}:8090"
+    volumes:
+      - pb_data:/pb/pb_data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8090/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - internal
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_PB_URL: ""        # leer -> location.origin -> Nginx-Proxy
+    image: ${IMAGE_WEB:-pocketbase-collab/frontend}:dev
+    container_name: ${STACK_NAME:-pocketbase-collab}_frontend
+    restart: unless-stopped
+    depends_on:
+      pocketbase:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8080}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  pb_data:
+    name: ${STACK_NAME:-pocketbase-collab}_pb_data
