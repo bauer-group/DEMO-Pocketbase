@@ -70,11 +70,15 @@ npm run dev
 - App:            http://localhost:5173
 - PocketBase API: http://localhost:8090
 - Admin-UI:       http://localhost:8090/_/
-- Demo-Login:     `demo@example.com` / `demo1234` (vorausgefüllt)
+
+| Login | Wo | Zugang |
+| ----- | -- | ------ |
+| **App-User** (Collection `users`) | Frontend / App | `demo@example.com` / `demo1234` (vorausgefüllt) |
+| **Superuser** (Admin-Dashboard) | `/_/` | `admin@example.com` / `demoadmin1234` |
 
 > Beim allerersten Start legen die Migrationen Schema **und** einen kompletten
-> Demo-Datenstand an (2 User, Workspace, Tags, Notizen, Kommentare).
-> Den ersten Admin (Superuser) legst du selbst über die Admin-UI an.
+> Demo-Datenstand an (App-User, Superuser, Workspace, Tags, Notizen, Kommentare).
+> Alle Zugänge sind über `ADMIN_*` / `DEMO_USER_*` in der `.env` überschreibbar.
 
 ### Variante B — Alles containerisiert (Production-nah)
 

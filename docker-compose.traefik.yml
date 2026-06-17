@@ -34,6 +34,9 @@ services:
       TZ: ${TIME_ZONE:-Etc/UTC}
       DEMO_USER_EMAIL: ${DEMO_USER_EMAIL:-demo@example.com}
       DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-demo1234}
+      # Superuser fürs Admin-Dashboard (/_/)
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-demoadmin1234}
     expose:
       - "8090"
     volumes:

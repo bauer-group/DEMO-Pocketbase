@@ -13,6 +13,26 @@
 
 migrate(
   (app) => {
+    // --- Superuser fürs Admin-Dashboard (/_/) idempotent anlegen -----------
+    // Damit das Dashboard out-of-the-box einen bekannten Login hat (sonst
+    // müsste man den Installer-Link aus den Logs nutzen). Über Env setzbar.
+    const adminEmail = $os.getenv("ADMIN_EMAIL") || "admin@example.com";
+    const adminPass = $os.getenv("ADMIN_PASSWORD") || "demoadmin1234";
+    let hasAdmin = false;
+    try {
+      hasAdmin = !!app.findFirstRecordByFilter("_superusers", "email = {:e}", {
+        e: adminEmail,
+      });
+    } catch (_) {
+      /* keiner vorhanden */
+    }
+    if (!hasAdmin) {
+      const su = new Record(app.findCollectionByNameOrId("_superusers"));
+      su.set("email", adminEmail);
+      su.setPassword(adminPass);
+      app.save(su);
+    }
+
     const SLUG = "produktlaunch";
 
     // Idempotenz: bereits geseedet? -> abbrechen.

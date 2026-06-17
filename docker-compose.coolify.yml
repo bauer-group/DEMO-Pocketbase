@@ -26,6 +26,9 @@ services:
       TZ: ${TIME_ZONE:-Etc/UTC}
       DEMO_USER_EMAIL: ${DEMO_USER_EMAIL:-demo@example.com}
       DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-demo1234}
+      # Superuser fürs Admin-Dashboard (/_/)
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-demoadmin1234}
     volumes:
       - pb_data:/pb/pb_data
     healthcheck:
