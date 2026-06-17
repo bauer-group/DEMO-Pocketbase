@@ -6,7 +6,7 @@
 # und können die Version exakt pinnen.
 # ----------------------------------------------------------------------------
 
-FROM alpine:3.20 AS downloader
+FROM alpine:3.24 AS downloader
 
 ARG PB_VERSION=0.39.4
 ARG TARGETARCH
@@ -24,7 +24,7 @@ RUN apk add --no-cache curl unzip ca-certificates \
 
 # ----------------------------------------------------------------------------
 
-FROM alpine:3.20
+FROM alpine:3.24
 
 RUN apk add --no-cache ca-certificates tzdata wget \
  && addgroup -S pb && adduser -S pb -G pb
