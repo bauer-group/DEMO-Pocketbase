@@ -29,7 +29,7 @@ RUN npm run build
 
 # ----------------------------------------------------------------------------
 
-FROM nginx:1.27-alpine AS serve
+FROM nginx:1.31-alpine AS serve
 
 # Eigene Nginx-Konfig
 COPY nginx.conf /etc/nginx/conf.d/default.conf
