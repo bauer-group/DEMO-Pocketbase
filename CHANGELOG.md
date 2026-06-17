@@ -1,3 +1,9 @@
+## [0.2.0](https://github.com/bauer-group/DEMO-Pocketbase/compare/v0.1.0...v0.2.0) (2026-06-17)
+
+### 🚀 Features
+
+* **pocketbase:** seeded superuser for the admin dashboard ([81bc621](https://github.com/bauer-group/DEMO-Pocketbase/commit/81bc621265a38d13c1f2f1c43c0ccd42bd3103f1))
+
 ## [0.1.0](https://github.com/bauer-group/DEMO-Pocketbase/compare/v0.0.0...v0.1.0) (2026-06-17)
 
 ### 🚀 Features
