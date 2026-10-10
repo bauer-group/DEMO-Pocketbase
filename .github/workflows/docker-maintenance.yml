@@ -1,8 +1,8 @@
 # =============================================================================
 # Docker Maintenance - Dependabot Auto-Merge
 # =============================================================================
-# Merged Dependabot-PRs für Docker-Updates automatisch nach erfolgreicher
-# Validierung.
+# Merged Dependabot-PRs (Docker- und npm-Updates) automatisch, sobald die
+# PR-CI (docker-release.yml) auf dem PR-Head gelaufen und grün ist.
 #
 # Nutzt die Reusable-Workflows aus bauer-group/automation-templates.
 # =============================================================================
@@ -12,9 +12,11 @@ name: Docker Maintenance
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'pocketbase/Dockerfile'
-      - 'frontend/Dockerfile'
+    # No paths filter: every Dependabot PR (docker, npm, github-actions, ...)
+    # reaches the module and gets an explicit decision and annotation instead
+    # of silently staying open. GitHub Actions updates and .github/ changes
+    # stay open by the module's own guard; any other PR merges only if the
+    # required workflow below ran on it and passed.
 
 permissions:
   contents: write
@@ -28,6 +30,8 @@ jobs:
       merge-method: 'squash'
       auto-approve: true
       # Merge only after this PR CI has passed on the PR head commit - it
-      # builds the images.
+      # builds both images: pocketbase/Dockerfile and frontend/Dockerfile,
+      # whose build stage runs npm ci, tsc and vite build on the PR's
+      # frontend/package*.json.
       required-workflows: '.github/workflows/docker-release.yml'
     secrets: inherit
