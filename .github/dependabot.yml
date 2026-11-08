@@ -12,8 +12,8 @@ updates:
     directory: "/frontend"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "06:00"
+      day: "sunday"
+      time: "16:55"
       timezone: "Etc/UTC"
     commit-message:
       prefix: "chore(npm)"
@@ -43,8 +43,8 @@ updates:
       - "/frontend"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "06:00"
+      day: "sunday"
+      time: "16:55"
       timezone: "Etc/UTC"
     commit-message:
       prefix: "chore(docker)"
@@ -57,8 +57,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "06:00"
+      day: "sunday"
+      time: "16:55"
       timezone: "Etc/UTC"
     commit-message:
       prefix: "chore(actions)"
