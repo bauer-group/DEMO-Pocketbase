@@ -4,6 +4,14 @@
 # Merged Dependabot-PRs (Docker- und npm-Updates) automatisch, sobald die
 # PR-CI (docker-release.yml) auf dem PR-Head gelaufen und grün ist.
 #
+# A merge made with the GITHUB_TOKEN starts no push workflow, so after the
+# merge this workflow dispatches docker-release.yml on main and waits for it
+# (release-workflow). That run builds both images from the merged commit
+# again and only then:
+# 1. Creates a semantic release (fix(docker) / fix(deps) -> PATCH)
+# 2. Builds and pushes the new pocketbase and frontend images
+# A release run that does not succeed turns this job red.
+#
 # Nutzt die Reusable-Workflows aus bauer-group/automation-templates.
 # =============================================================================
 
@@ -19,8 +27,11 @@ on:
     # required workflow below ran on it and passed.
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: write       # merge
+  pull-requests: write  # approve, read the PR
+  checks: read          # check runs and suites of the PR head commit
+  statuses: read        # commit statuses of the PR head commit
+  actions: write        # dispatch the release; read workflow runs
 
 jobs:
   dependabot-auto-merge:
@@ -34,4 +45,8 @@ jobs:
       # whose build stage runs npm ci, tsc and vite build on the PR's
       # frontend/package*.json.
       required-workflows: '.github/workflows/docker-release.yml'
+      # After a merge - and only then - dispatch the release on main and
+      # wait for it: it rebuilds the merged commit before it releases it,
+      # and a failed release run fails this job.
+      release-workflow: '.github/workflows/docker-release.yml'
     secrets: inherit

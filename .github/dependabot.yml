@@ -2,6 +2,15 @@
 # Dependabot Configuration
 # =============================================================================
 # Automatische Dependency-Updates für npm-, Docker- und GitHub-Actions.
+#
+# Commit prefixes decide whether a merged update is released
+# (docker-maintenance.yml dispatches docker-release.yml after the merge):
+#   npm            -> fix(deps): PATCH release - the runtime packages are
+#                     bundled into the frontend image; devDependencies
+#                     (prefix-development: vite, typescript, tailwindcss,
+#                     types) -> chore(deps-dev)
+#   docker         -> fix(docker): PATCH release, the images are rebuilt
+#   github-actions -> chore(actions): no release, never auto-merged
 # =============================================================================
 
 version: 2
@@ -16,7 +25,8 @@ updates:
       time: "16:55"
       timezone: "Etc/UTC"
     commit-message:
-      prefix: "chore(npm)"
+      prefix: "fix(deps)"
+      prefix-development: "chore(deps-dev)"
     labels:
       - "dependencies"
       - "frontend"
@@ -47,7 +57,7 @@ updates:
       time: "16:55"
       timezone: "Etc/UTC"
     commit-message:
-      prefix: "chore(docker)"
+      prefix: "fix(docker)"
     labels:
       - "dependencies"
       - "docker"
