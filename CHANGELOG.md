@@ -4,6 +4,12 @@ All notable changes to this project are documented here. This file is maintained
 automatically by [semantic-release](https://github.com/semantic-release/semantic-release)
 on every release to `main`.
 
+## [0.2.3](https://github.com/bauer-group/DEMO-Pocketbase/compare/v0.2.2...v0.2.3) (2026-11-10)
+
+### 🐛 Bug Fixes
+
+* **deps:** bump tailwind-merge from 3.6.0 to 3.7.0 in /frontend ([#31](https://github.com/bauer-group/DEMO-Pocketbase/issues/31)) ([65ae1d0](https://github.com/bauer-group/DEMO-Pocketbase/commit/65ae1d0defdc073b0c6d161c51d09f07a17aa42a))
+
 ## [0.2.2](https://github.com/bauer-group/DEMO-Pocketbase/compare/v0.2.1...v0.2.2) (2026-11-10)
 
 ### 🐛 Bug Fixes
