@@ -4,6 +4,17 @@ All notable changes to this project are documented here. This file is maintained
 automatically by [semantic-release](https://github.com/semantic-release/semantic-release)
 on every release to `main`.
 
+## [0.2.4](https://github.com/bauer-group/DEMO-Pocketbase/compare/v0.2.3...v0.2.4) (2026-11-22)
+
+### 🐛 Bug Fixes
+
+* **deps:** bump lucide-react from 1.70.0 to 1.76.0 in /frontend ([#51](https://github.com/bauer-group/DEMO-Pocketbase/issues/51)) ([7bde376](https://github.com/bauer-group/DEMO-Pocketbase/commit/7bde376068ea12e7953a7ccf78f46e21c7b888a6))
+
+### 🔧 Maintenance
+
+* **deps-dev:** bump the dev-dependencies group ([#48](https://github.com/bauer-group/DEMO-Pocketbase/issues/48)) ([819dde3](https://github.com/bauer-group/DEMO-Pocketbase/commit/819dde366faa05e1f21027a9e36fffa62819e6cd))
+* **deps-dev:** bump the dev-dependencies group across 1 directory with 4 updates ([#44](https://github.com/bauer-group/DEMO-Pocketbase/issues/44)) ([cdf3dbf](https://github.com/bauer-group/DEMO-Pocketbase/commit/cdf3dbfeaca113c9a21917777a2aa765e6045ab3))
+
 ## [0.2.3](https://github.com/bauer-group/DEMO-Pocketbase/compare/v0.2.2...v0.2.3) (2026-11-10)
 
 ### 🐛 Bug Fixes
