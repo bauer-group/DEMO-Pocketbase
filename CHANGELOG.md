@@ -4,6 +4,12 @@ All notable changes to this project are documented here. This file is maintained
 automatically by [semantic-release](https://github.com/semantic-release/semantic-release)
 on every release to `main`.
 
+## [0.2.5](https://github.com/bauer-group/DEMO-Pocketbase/compare/v0.2.4...v0.2.5) (2026-11-22)
+
+### 🐛 Bug Fixes
+
+* **deps:** bump dompurify from 3.4.17 to 3.4.18 in /frontend ([#52](https://github.com/bauer-group/DEMO-Pocketbase/issues/52)) ([c9a1156](https://github.com/bauer-group/DEMO-Pocketbase/commit/c9a11562aa93e32b7fd8d1c4ba73810a10671c44))
+
 ## [0.2.4](https://github.com/bauer-group/DEMO-Pocketbase/compare/v0.2.3...v0.2.4) (2026-11-22)
 
 ### 🐛 Bug Fixes
