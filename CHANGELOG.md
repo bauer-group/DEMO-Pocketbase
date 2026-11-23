@@ -4,6 +4,16 @@ All notable changes to this project are documented here. This file is maintained
 automatically by [semantic-release](https://github.com/semantic-release/semantic-release)
 on every release to `main`.
 
+## [0.2.6](https://github.com/bauer-group/DEMO-Pocketbase/compare/v0.2.5...v0.2.6) (2026-11-23)
+
+### 🐛 Bug Fixes
+
+* **deps:** bump pocketbase from 0.27.0 to 0.29.0 in /frontend ([8037d8e](https://github.com/bauer-group/DEMO-Pocketbase/commit/8037d8eee2de7cf065c5a15ecc441b351ce2e990))
+
+### 🔧 Maintenance
+
+* **npm:** bump serialize-javascript from 7.0.5 to 7.1.4 in /frontend ([238cb8e](https://github.com/bauer-group/DEMO-Pocketbase/commit/238cb8ea599555c79c1ab72e678f9d34fd623adc))
+
 ## [0.2.5](https://github.com/bauer-group/DEMO-Pocketbase/compare/v0.2.4...v0.2.5) (2026-11-22)
 
 ### 🐛 Bug Fixes
